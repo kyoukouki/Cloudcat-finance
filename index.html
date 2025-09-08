@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>云喵Club财务管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            padding: 40px 20px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '🐱';
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 30px;
+            opacity: 0.7;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 14px;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 20px;
+            margin-top: -20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 2px solid #f0f0f0;
+        }
+
+        .stat-card.primary {
+            border-color: #ff9a9e;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* 功能菜单 */
+        .menu-section {
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: '📋';
+            margin-right: 8px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .menu-item {
+            background: white;
+            border: 2px solid #f0f0f0;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .menu-item:hover {
+            border-color: #ff9a9e;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 154, 158, 0.3);
+        }
+
+        .menu-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .menu-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* 快捷操作 */
+        .quick-actions {
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .quick-actions .section-title::before {
+            content: '⚡';
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-btn.secondary {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            padding: 10px 0;
+        }
+
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            color: #666;
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .nav-item.active {
+            color: #ff9a9e;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 隐藏的页面 */
+        .page {
+            display: none;
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #ff9a9e;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 154, 158, 0.4);
+        }
+
+        /* 列表样式 */
+        .list-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .list-item:hover {
+            border-color: #ff9a9e;
+            box-shadow: 0 4px 15px rgba(255, 154, 158, 0.2);
+        }
+
+        .list-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .list-item-title {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .list-item-amount {
+            font-weight: bold;
+            color: #ff9a9e;
+        }
+
+        .list-item-meta {
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 主页 -->
+        <div id="home-page" class="page active">
+            <!-- 头部 -->
+            <div class="header">
+                <h1>云喵Club财务系统</h1>
+                <p>让财务管理变得简单有趣</p>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="stats-grid">
+                <div class="stat-card primary">
+                    <div class="stat-number" id="today-income">¥0</div>
+                    <div class="stat-label">今日收入</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="month-income">¥0</div>
+                    <div class="stat-label">本月收入</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-orders">0</div>
+                    <div class="stat-label">总保单数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-customers">0</div>
+                    <div class="stat-label">客户数量</div>
+                </div>
+            </div>
+
+            <!-- 功能菜单 -->
+            <div class="menu-section">
+                <div class="section-title">主要功能</div>
+                <div class="menu-grid">
+                    <a href="#" class="menu-item" onclick="showPage('orders-page')">
+                        <span class="menu-icon">📋</span>
+                        <span class="menu-text">保单管理</span>
+                    </a>
+                    <a href="#" class="menu-item" onclick="showPage('customers-page')">
+                        <span class="menu-icon">👥</span>
+                        <span class="menu-text">客户管理</span>
+                    </a>
+                    <a href="#" class="menu-item" onclick="showPage('stats-page')">
+                        <span class="menu-icon">📊</span>
+                        <span class="menu-text">财务统计</span>
+                    </a>
+                    <a href="#" class="menu-item" onclick="showPage('profile-page')">
+                        <span class="menu-icon">⚙️</span>
+                        <span class="menu-text">个人设置</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 快捷操作 -->
+            <div class="quick-actions">
+                <div class="section-title">快捷操作</div>
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="showPage('add-order-page')">
+                        新增保单
+                    </button>
+                    <button class="action-btn secondary" onclick="showPage('add-customer-page')">
+                        添加客户
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 保单管理页面 -->
+        <div id="orders-page" class="page">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('home-page')">←</button>
+                <div class="page-title">保单管理</div>
+            </div>
+            
+            <div class="action-buttons" style="margin-bottom: 20px;">
+                <button class="action-btn" onclick="showPage('add-order-page')">新增保单</button>
+            </div>
+
+            <div id="orders-list">
+                <!-- 保单列表将在这里动态生成 -->
+            </div>
+        </div>
+
+        <!-- 新增保单页面 -->
+        <div id="add-order-page" class="page">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('orders-page')">←</button>
+                <div class="page-title">新增保单</div>
+            </div>
+
+            <form id="order-form">
+                <div class="form-group">
+                    <label class="form-label">选择客户</label>
+                    <select class="form-select" id="customer-select" required>
+                        <option value="">请选择客户</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">服务类型</label>
+                    <select class="form-select" id="service-type" required>
+                        <option value="">请选择服务类型</option>
+                        <option value="游戏陪玩">游戏陪玩</option>
+                        <option value="聊天陪伴">聊天陪伴</option>
+                        <option value="技能教学">技能教学</option>
+                        <option value="其他服务">其他服务</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">服务时长（小时）</label>
+                    <input type="number" class="form-input" id="service-hours" step="0.5" min="0.5" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">收费标准（元/小时）</label>
+                    <input type="number" class="form-input" id="hourly-rate" step="1" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">平台抽成（元）</label>
+                    <input type="number" class="form-input" id="platform-fee" step="1" min="0" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">备注</label>
+                    <input type="text" class="form-input" id="order-notes" placeholder="可选">
+                </div>
+
+                <button type="submit" class="submit-btn">保存保单</button>
+            </form>
+        </div>
+
+        <!-- 客户管理页面 -->
+        <div id="customers-page" class="page">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('home-page')">←</button>
+                <div class="page-title">客户管理</div>
+            </div>
+            
+            <div class="action-buttons" style="margin-bottom: 20px;">
+                <button class="action-btn" onclick="showPage('add-customer-page')">添加客户</button>
+            </div>
+
+            <div id="customers-list">
+                <!-- 客户列表将在这里动态生成 -->
+            </div>
+        </div>
+
+        <!-- 新增客户页面 -->
+        <div id="add-customer-page" class="page">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('customers-page')">←</button>
+                <div class="page-title">添加客户</div>
+            </div>
+
+            <form id="customer-form">
+                <div class="form-group">
+                    <label class="form-label">客户姓名</label>
+                    <input type="text" class="form-input" id="customer-name" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">联系方式</label>
+                    <input type="text" class="form-input" id="customer-contact" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">客户等级</label>
+                    <select class="form-select" id="customer-level" required>
+                        <option value="普通">普通客户</option>
+                        <option value="VIP">VIP客户</option>
+                        <option value="SVIP">SVIP客户</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">游戏偏好</label>
+                    <input type="text" class="form-input" id="game-preference" placeholder="如：王者荣耀、和平精英等">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">备注</label>
+                    <input type="text" class="form-input" id="customer-notes" placeholder="特殊要求或注意事项">
+                </div>
+
+                <button type="submit" class="submit-btn">保存客户</button>
+            </form>
+        </div>
+
+        <!-- 财务统计页面 -->
+        <div id="stats-page" class="page">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('home-page')">←</button>
+                <div class="page-title">财务统计</div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card primary">
+                    <div class="stat-number" id="stats-today">¥0</div>
+                    <div class="stat-label">今日收入</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stats-week">¥0</div>
+                    <div class="stat-label">本周收入</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stats-month">¥0</div>
+                    <div class="stat-label">本月收入</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stats-total">¥0</div>
+                    <div class="stat-label">总收入</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <div class="section-title">收入明细</div>
+                <div id="income-details">
+                    <!-- 收入明细将在这里显示 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 个人设置页面 -->
+        <div id="profile-page" class="page">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('home-page')">←</button>
+                <div class="page-title">个人设置</div>
+            </div>
+
+            <div class="menu-grid">
+                <div class="menu-item" onclick="exportData()">
+                    <span class="menu-icon">📤</span>
+                    <span class="menu-text">导出数据</span>
+                </div>
+                <div class="menu-item" onclick="clearData()">
+                    <span class="menu-icon">🗑️</span>
+                    <span class="menu-text">清空数据</span>
+                </div>
+                <div class="menu-item" onclick="showHelp()">
+                    <span class="menu-icon">❓</span>
+                    <span class="menu-text">使用帮助</span>
+                </div>
+                <div class="menu-item" onclick="showAbout()">
+                    <span class="menu-icon">ℹ️</span>
+                    <span class="menu-text">关于我们</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <a href="#" class="nav-item active" onclick="showPage('home-page')">
+                <span class="nav-icon">🏠</span>
+                首页
+            </a>
+            <a href="#" class="nav-item" onclick="showPage('orders-page')">
+                <span class="nav-icon">📋</span>
+                保单
+            </a>
+            <a href="#" class="nav-item" onclick="showPage('customers-page')">
+                <span class="nav-icon">👥</span>
+                客户
+            </a>
+            <a href="#" class="nav-item" onclick="showPage('stats-page')">
+                <span class="nav-icon">📊</span>
+                统计
+            </a>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
